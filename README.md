@@ -45,7 +45,8 @@ This will run the BAMStats tool on a collection of BAM files available
 
     perl schedule_workflow.pl --container-id quay.io/briandoconnor/dockstore-tool-bamstats --manifest manifest.tsv --mode consonance
 
-
 ## TODO
 
 * the URL for the dockstore server is hard-coded
+* the downloads are hard-coded to use a 1000 genomes BAM, need to switch to either S3 or Collaboratory-based BAMs
+* the uploads go to an OICR bucket in S3, need to also support (show an example of) upload to Swift provided by Collaboratory
