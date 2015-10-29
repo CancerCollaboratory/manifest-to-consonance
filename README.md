@@ -44,3 +44,8 @@ This will run the BAMStats tool on a collection of BAM files available
 ### Consonance
 
     perl schedule_workflow.pl --container-id quay.io/briandoconnor/dockstore-tool-bamstats --manifest manifest.tsv --mode consonance
+
+
+## TODO
+
+* the URL for the dockstore server is hard-coded
