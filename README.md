@@ -11,6 +11,7 @@ You can contrinbute your own Docker-based tools to the Dockstore, see http://www
 This tool supports two modes, a local mode and a Consonance mode. They each have their own depedencies although the following will need to be setup for any type of run:
 
 * Perl
+** `sudo cpanm install YAML::Perl`
 * Docker (on Linux) or Boot2Docker (Mac)
 
 ### Local Mode
@@ -36,7 +37,10 @@ You need to have the:
 
 ### Local
 
-This will run the BAMStats tool on a collection of BAM files available 
+This will run the BAMStats tool on a collection of BAM files available
 
-    perl schedule_workflow.pl --cwl sample.cwl --manifest manifest.tsv --mode local
+    perl schedule_workflow.pl --container-id quay.io/briandoconnor/dockstore-tool-bamstats --manifest manifest.tsv --mode local
 
+### Consonance
+
+    perl schedule_workflow.pl --container-id quay.io/briandoconnor/dockstore-tool-bamstats --manifest manifest.tsv --mode consonance
