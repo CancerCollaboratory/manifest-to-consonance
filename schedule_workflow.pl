@@ -93,6 +93,10 @@ sub get_cwl {
 
   #print Dumper $inputs_hash;
 
+  open OUT, ">$outputs/Dockstore.cwl" or die;
+  print OUT $cwl_content;
+  close OUT;
+
 }
 
 sub order_workflow {
@@ -115,7 +119,7 @@ sub order_workflow {
   if ($mode eq "local") {
     print "RUNNING DOCKER LOCALLY...\n";
     # TODO: you're going to need to output the cwl to a file and replace collab.cwl
-    print "java -cp lib/uber-io.github.collaboratory.launcher-*.jar io.github.collaboratory.LauncherCWL --config config/launcher.ini --descriptor collab.cwl --job $outputs/$project_id.$donor_id.json"
+    print "java -cp lib/uber-io.github.collaboratory.launcher-*.jar io.github.collaboratory.LauncherCWL --config config/launcher.ini --descriptor $outputs/Dockstore.cwl --job $outputs/$project_id.$donor_id.json"
   }
 
   # else if consonance mode make the consonance command and execute (echo) it
