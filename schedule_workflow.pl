@@ -15,6 +15,8 @@ my $log = {};
 my $inputs_hash = {};
 my $yml_data;
 my $outputs = "jsons";
+my $test = 0;
+my $s3_output_path = "s3://oicr.temp/testing-manifest-to-consonance";
 
 my $url = "https://www.dockstore.org:8443";
 
@@ -25,6 +27,8 @@ GetOptions (
   "manifest=s" => \$manifest,
   "mode=s" => \$mode,
   "output-dir=s" => \$outputs,
+  "s3-output-path=s" => \$s3_output_path,
+  "test" => \$test,
 ) or die ("Error parsing command lines");
 
 # MAIN LOOP
@@ -88,7 +92,18 @@ sub get_cwl {
     my $id = $inputs->[0]{id};
     $id =~ /\#*(\w+)$/;
     print "  - $1\n";
-    $inputs_hash->{$1} = $inputs->[0]{type};
+    $inputs_hash->{$1}{path} = $inputs->[0]{type};
+    $inputs_hash->{$1}{class} = $inputs->[0]{type};
+  }
+
+  print "  EXAMINING TOOL OUTPUTS...\n";
+  foreach my $inputs ($yml_data->{outputs}) {
+    #print Dumper $inputs;
+    my $id = $inputs->[0]{id};
+    $id =~ /\#*(\w+)$/;
+    print "  - $1\n";
+    $inputs_hash->{$1}{path} = $inputs->[0]{type};
+    $inputs_hash->{$1}{class} = $inputs->[0]{type};
   }
 
   #print Dumper $inputs_hash;
@@ -102,8 +117,12 @@ sub get_cwl {
 sub order_workflow {
   my ($repo_code, $object_id, $file_format, $donor_id, $project_id) = @_;
 
+  # HACK!!!
   # override variable
-  $inputs_hash->{bam_input} = "icgc://$object_id";
+  # $inputs_hash->{bam_input} = "icgc://$object_id";
+  $inputs_hash->{bam_input}{path} = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12878/alignment/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam";
+  # output
+  $inputs_hash->{bamstats_report}{path} = "$s3_output_path/$project_id\:\:$donor_id\_bamstats_report.zip";
 
   # make a JSON for this BAM
   open OUT, ">$outputs/$project_id.$donor_id.json" or die;
@@ -119,7 +138,12 @@ sub order_workflow {
   if ($mode eq "local") {
     print "RUNNING DOCKER LOCALLY...\n";
     # TODO: you're going to need to output the cwl to a file and replace collab.cwl
-    print "java -cp lib/uber-io.github.collaboratory.launcher-*.jar io.github.collaboratory.LauncherCWL --config config/launcher.ini --descriptor $outputs/Dockstore.cwl --job $outputs/$project_id.$donor_id.json"
+    my $cmd = "java -cp lib/uber-io.github.collaboratory.launcher-*.jar io.github.collaboratory.LauncherCWL --config config/launcher.ini --descriptor $outputs/Dockstore.cwl --job $outputs/$project_id.$donor_id.json";
+    print "$cmd\n";
+    if (!$test) {
+      my $result = system($cmd);
+      if ($result) { print "ERROR! problems with command\n"; }
+    }
   }
 
   # else if consonance mode make the consonance command and execute (echo) it
@@ -127,8 +151,12 @@ sub order_workflow {
   if ($mode eq "consonance") {
     print "SCHEDULING JOB WITH CONSONANCE ON THE CLOUD...\n";
     # TODO: you're going to need to output the cwl to a file and replace collab.cwl
-    print "consonance run  --flavour m1.xlarge --image-descriptor  collab.cwl
-    --run-descriptor $outputs/$project_id.$donor_id.json --extra-file cwl-launcher.config=cwl-launcher.config=true  --extra-file /icgc/dcc-storage/conf/application-amazon.properties=application-amazon.properties=false"
+    my $cmd = "consonance run  --flavour m1.xlarge --image-descriptor $outputs/Dockstore.cwl --run-descriptor $outputs/$project_id.$donor_id.json --extra-file cwl-launcher.config=cwl-launcher.config=true  --extra-file /icgc/dcc-storage/conf/application-amazon.properties=application-amazon.properties=false";
+    print "$cmd\n";
+    if (!$test) {
+      my $result = system($cmd);
+      if ($result) { print "ERROR! problems with command\n"; }
+    }
   }
 
   # if everything worked report success
