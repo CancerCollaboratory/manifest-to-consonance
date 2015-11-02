@@ -12,7 +12,9 @@ This tool supports two modes, a local mode and a Consonance mode. They each have
 
 * Perl
 ** `sudo cpanm install YAML::Perl`
+** `sudo apt-get install libjson-pp-perl libconfig-yaml-perl libwww-perl libyaml-perl cpanminus` and the same command above since there is no package for YAML::Perl
 * Docker (on Linux) or Boot2Docker (Mac)
+* Java, make sure you have Java 1.8, we have tested 1.8.0_66
 
 ### Local Mode
 
@@ -23,6 +25,8 @@ You need to have the:
 ** build with `mvn clean install` in the `launcher` directory
 ** I also checked in a copy into `lib`
 * credentials for clouds like AWS depending on where your inputs or outputs are
+* the `cwltool` command, see [here](https://github.com/CancerCollaboratory/dockstore-descriptor/blob/develop/README.md) for how to install in detail
+** 
 
 ### Consonance Mode
 
@@ -39,14 +43,7 @@ You need to download the following to the deps directory.
 
     wget -O deps/dcc-storage-client-0.0.43-dist.tar.gz https://seqwaremaven.oicr.on.ca/artifactory/simple/dcc-release/org/icgc/dcc/dcc-storage-client/0.0.43/dcc-storage-client-0.0.43-dist.tar.gz
 
-And then unzip it.
-
-You then should update the `config/launcher.ini` file, correct the path below for your system:
-
-    [dcc_storage]
-    client=<path>/deps/dcc-storage-client-0.0.43/bin/dcc-storage-client
-
-You will also fill in the config file for this tool in `deps/dcc-storage-client-0.0.43/conf/application-amazon.properties`, make sure you fill
+And then unzip it.You will also fill in the config file for this tool in `deps/dcc-storage-client-0.0.43/conf/application-amazon.properties`, make sure you fill
 in your token:
 
 ```
@@ -56,6 +53,12 @@ client.upload.serviceHostname=storage.cancercollaboratory.org
 client.ssl.trustStore=classpath:client.jks
 accessToken=<your token here>
 ```
+
+You then should update the `config/launcher.ini` file, correct the path below for your system:
+
+    [dcc_storage]
+    client=<path>/deps/dcc-storage-client-0.0.43/bin/dcc-storage-client
+
 
 ## Data Location
 
