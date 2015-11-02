@@ -12,7 +12,7 @@ This tool supports two modes, a local mode and a Consonance mode. They each have
 
 * Perl
 ** `sudo cpanm install YAML::Perl`
-** `sudo apt-get install libjson-pp-perl libconfig-yaml-perl libwww-perl libyaml-perl cpanminus` and the same command above since there is no package for YAML::Perl
+** `sudo apt-get install libjson-pp-perl libconfig-yaml-perl libwww-perl libyaml-perl cpanminus python-pip make libcurl4-openssl-dev python-dev` and the same command above since there is no package for YAML::Perl
 * Docker (on Linux) or Boot2Docker (Mac)
 * Java, make sure you have Java 1.8, we have tested 1.8.0_66
 
@@ -21,12 +21,12 @@ This tool supports two modes, a local mode and a Consonance mode. They each have
 You need to have the:
 
 * Jar file for the tool Launcher available from [here] (https://github.com/CancerCollaboratory/dockstore-descriptor).
-** use 1.0.4 release for the Launcher
-** build with `mvn clean install` in the `launcher` directory
-** I also checked in a copy into `lib`
+  * use 1.0.4 release for the Launcher
+  * build with `mvn clean install` in the `launcher` directory
+  * I also checked in a copy into `lib`
 * credentials for clouds like AWS depending on where your inputs or outputs are
 * the `cwltool` command, see [here](https://github.com/CancerCollaboratory/dockstore-descriptor/blob/develop/README.md) for how to install in detail
-** 
+  * `pip install cwl-runner`
 
 ### Consonance Mode
 
