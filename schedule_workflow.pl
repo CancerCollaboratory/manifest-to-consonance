@@ -119,8 +119,8 @@ sub order_workflow {
 
   # HACK!!!
   # override variable
-  # $inputs_hash->{bam_input} = "icgc://$object_id";
-  $inputs_hash->{bam_input}{path} = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12878/alignment/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam";
+  $inputs_hash->{bam_input}{path} = "icgc:$object_id";
+  #$inputs_hash->{bam_input}{path} = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12878/alignment/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam";
   # output
   $inputs_hash->{bamstats_report}{path} = "$s3_output_path/$project_id\:\:$donor_id\_bamstats_report.zip";
 
@@ -138,7 +138,7 @@ sub order_workflow {
   if ($mode eq "local") {
     print "RUNNING DOCKER LOCALLY...\n";
     # TODO: you're going to need to output the cwl to a file and replace collab.cwl
-    my $cmd = "java -cp lib/uber-io.github.collaboratory.launcher-*.jar io.github.collaboratory.LauncherCWL --config config/launcher.ini --descriptor $outputs/Dockstore.cwl --job $outputs/$project_id.$donor_id.json";
+    my $cmd = "java -cp lib/uber-io.github.collaboratory.launcher-1.0.4.jar io.github.collaboratory.LauncherCWL --config config/launcher.ini --descriptor $outputs/Dockstore.cwl --job $outputs/$project_id.$donor_id.json";
     print "$cmd\n";
     if (!$test) {
       my $result = system($cmd);
