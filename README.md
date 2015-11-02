@@ -20,6 +20,8 @@ You need to have the:
 
 * Jar file for the tool Launcher available from [here] (https://github.com/CancerCollaboratory/dockstore-descriptor).
 ** use 1.0.4 release for the Launcher
+** build with `mvn clean install` in the `launcher` directory
+** I also checked in a copy into `lib`
 * credentials for clouds like AWS depending on where your inputs or outputs are
 
 ### Consonance Mode
