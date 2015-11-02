@@ -115,7 +115,7 @@ sub order_workflow {
   if ($mode eq "local") {
     print "RUNNING DOCKER LOCALLY...\n";
     # TODO: you're going to need to output the cwl to a file and replace collab.cwl
-    print "java -cp launcher/target/uber-io.github.collaboratory.launcher-*.jar io.github.collaboratory.LauncherCWL --config launcher.ini --descriptor collab.cwl --job $outputs/$project_id.$donor_id.json"
+    print "java -cp lib/uber-io.github.collaboratory.launcher-*.jar io.github.collaboratory.LauncherCWL --config config/launcher.ini --descriptor collab.cwl --job $outputs/$project_id.$donor_id.json"
   }
 
   # else if consonance mode make the consonance command and execute (echo) it
@@ -123,7 +123,7 @@ sub order_workflow {
   if ($mode eq "consonance") {
     print "SCHEDULING JOB WITH CONSONANCE ON THE CLOUD...\n";
     # TODO: you're going to need to output the cwl to a file and replace collab.cwl
-    print "consonance run  --flavour m1.xlarge --image-descriptor  collab.cwl 
+    print "consonance run  --flavour m1.xlarge --image-descriptor  collab.cwl
     --run-descriptor $outputs/$project_id.$donor_id.json --extra-file cwl-launcher.config=cwl-launcher.config=true  --extra-file /icgc/dcc-storage/conf/application-amazon.properties=application-amazon.properties=false"
   }
 
