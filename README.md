@@ -19,6 +19,7 @@ This tool supports two modes, a local mode and a Consonance mode. They each have
 You need to have the:
 
 * Jar file for the tool Launcher available from [here] (https://github.com/CancerCollaboratory/dockstore-descriptor).
+** use 1.0.4 release for the Launcher
 * credentials for clouds like AWS depending on where your inputs or outputs are
 
 ### Consonance Mode
@@ -27,6 +28,32 @@ You need to have the:
 
 * the consonance command line from [here](https://github.com/Consonance/consonance)
 * credentials for clouds like AWS, for both inputs/outputs and also launching worker VMs
+
+### Collaboratory/AWS Data Download Tool
+
+The ICGC PanCancer data is located on AWS (in S3) and the Collaboratory at OICR.
+A special tool is required in order to download data from these two sources.
+You need to download the following to the deps directory.
+
+    wget -O deps/dcc-storage-client-0.0.43-dist.tar.gz https://seqwaremaven.oicr.on.ca/artifactory/simple/dcc-release/org/icgc/dcc/dcc-storage-client/0.0.43/dcc-storage-client-0.0.43-dist.tar.gz
+
+And then unzip it.
+
+You then should update the `config/launcher.ini` file, correct the path below for your system:
+
+    [dcc_storage]
+    client=<path>/deps/dcc-storage-client-0.0.43/bin/dcc-storage-client
+
+You will also fill in the config file for this tool in `deps/dcc-storage-client-0.0.43/conf/application-amazon.properties`, make sure you fill
+in your token:
+
+```
+logging.level.org.icgc.dcc.storage.client=DEBUG
+logging.level.org.springframework.web.client.RestTemplate=DEBUG
+client.upload.serviceHostname=storage.cancercollaboratory.org
+client.ssl.trustStore=classpath:client.jks
+accessToken=<your token here>
+```
 
 ## Data Location
 
