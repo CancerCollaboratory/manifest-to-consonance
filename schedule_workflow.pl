@@ -91,19 +91,21 @@ sub get_cwl {
 
   foreach my $inputs ($yml_data->{inputs}) {
     print Dumper $inputs;
-    my $id = $inputs->[0]{id};
-    $id =~ /\#*(\w+)$/;
-    print "  - $1\n";
-    if ($inputs->[0]{type} eq "File") {
-      $inputs_hash->{$1}{path} = $inputs->[0]{type};
-      $inputs_hash->{$1}{class} = $inputs->[0]{type};
-    } else {
-      $inputs_hash->{$1} = $inputs->[0]{type};
+    foreach my $currInput (@{$inputs}) {
+      my $id = $currInput->{id};
+      $id =~ /\#*(\w+)$/;
+      print "  - $1\n";
+      if ($currInput->{type} eq "File") {
+        $inputs_hash->{$1}{path} = $currInput->{type};
+        $inputs_hash->{$1}{class} = $currInput->{type};
+      } else {
+        $inputs_hash->{$1} = $currInput->{type};
+      }
     }
   }
 
   print "  EXAMINING TOOL OUTPUTS...\n";
-  foreach my $inputs ($yml_data->{outputs}) {
+  foreach my $inputs (@{$yml_data->{outputs}}) {
     #print Dumper $inputs;
     my $id = $inputs->[0]{id};
     $id =~ /\#*(\w+)$/;
@@ -112,7 +114,9 @@ sub get_cwl {
     $inputs_hash->{$1}{class} = $inputs->[0]{type};
   }
 
-  #print Dumper $inputs_hash;
+  print Dumper $inputs_hash;
+
+die;
 
   open OUT, ">$outputs/Dockstore.cwl" or die;
   print OUT $cwl_content;
