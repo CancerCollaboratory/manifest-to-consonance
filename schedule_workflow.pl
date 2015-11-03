@@ -164,7 +164,10 @@ sub order_workflow {
   if ($mode eq "consonance") {
     print "SCHEDULING JOB WITH CONSONANCE ON THE CLOUD...\n";
     # TODO: you're going to need to output the cwl to a file and replace collab.cwl
-    my $cmd = "consonance run  --flavour m1.xlarge --image-descriptor $outputs/Dockstore.cwl --run-descriptor $outputs/$project_id.$donor_id.json --extra-file cwl-launcher.config=cwl-launcher.config=true  --extra-file /icgc/dcc-storage/conf/application-amazon.properties=application-amazon.properties=false";
+    # from FTP, to S3 Amazon, using my ~/.aws/config from my consonance config
+    my $cmd = "consonance run --flavour c1.medium --image-descriptor $outputs/Dockstore.cwl --run-descriptor $outputs/$project_id.$donor_id.json ";
+    # for DCC pull
+    #     my $cmd = "consonance run  --flavour c1.medium --image-descriptor $outputs/Dockstore.cwl --run-descriptor $outputs/$project_id.$donor_id.json --extra-file cwl-launcher.config=cwl-launcher.config=true  --extra-file /icgc/dcc-storage/conf/application-amazon.properties=application-amazon.properties=false";
     print "$cmd\n";
     if (!$test) {
       my $result = system("/bin/bash -l -c '$cmd'");
