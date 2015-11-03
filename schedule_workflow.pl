@@ -141,7 +141,7 @@ sub order_workflow {
     my $cmd = "java -cp lib/uber-io.github.collaboratory.launcher-1.0.4.jar io.github.collaboratory.LauncherCWL --config config/launcher.ini --descriptor $outputs/Dockstore.cwl --job $outputs/$project_id.$donor_id.json";
     print "$cmd\n";
     if (!$test) {
-      my $result = system($cmd);
+      my $result = system("/bin/bash -l -c '$cmd'");
       if ($result) { print "ERROR! problems with command\n"; }
     }
   }
@@ -154,7 +154,7 @@ sub order_workflow {
     my $cmd = "consonance run  --flavour m1.xlarge --image-descriptor $outputs/Dockstore.cwl --run-descriptor $outputs/$project_id.$donor_id.json --extra-file cwl-launcher.config=cwl-launcher.config=true  --extra-file /icgc/dcc-storage/conf/application-amazon.properties=application-amazon.properties=false";
     print "$cmd\n";
     if (!$test) {
-      my $result = system($cmd);
+      my $result = system("/bin/bash -l -c '$cmd'");
       if ($result) { print "ERROR! problems with command\n"; }
     }
   }
