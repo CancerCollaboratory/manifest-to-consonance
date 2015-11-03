@@ -67,6 +67,17 @@ You then should update the `config/launcher.ini` file, correct the path below fo
 
 ## Usage
 
+### Note About Shells
+
+The perl script will execute the various commands in a shell started with `bash -l -c '<command>'` .
+This means you need to have the following defined in your `~/.bash_profile` file:
+
+```
+export JAVA_HOME=<path to JDK 1.8>
+export AWS_ACCESS_KEY=<your key>
+export AWS_SECRET_KEY=<your secret key>
+```
+
 ### Local
 
 This will run the BAMStats tool on a collection of BAM files available
