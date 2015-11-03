@@ -104,6 +104,8 @@ sub get_cwl {
     }
   }
 
+  print Dumper $inputs_hash;
+
   print "  EXAMINING TOOL OUTPUTS...\n";
   foreach my $inputs (@{$yml_data->{outputs}}) {
     #print Dumper $inputs;
