@@ -124,7 +124,7 @@ sub order_workflow {
   ########$inputs_hash->{bam_input}{path} = "icgc:$object_id";
   $inputs_hash->{bam_input}{path} = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12878/alignment/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam";
   $inputs_hash->{mem_gb}{valueFrom} = $mem;
-  $inputs_hash->{mem_gb}{type} = "int";
+  $inputs_hash->{mem_gb}{class} = "int";
   # output
   $inputs_hash->{bamstats_report}{path} = "$s3_output_path/$project_id\:\:$donor_id\_bamstats_report.zip";
 
