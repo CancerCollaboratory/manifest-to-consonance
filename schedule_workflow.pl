@@ -94,8 +94,12 @@ sub get_cwl {
     my $id = $inputs->[0]{id};
     $id =~ /\#*(\w+)$/;
     print "  - $1\n";
-    $inputs_hash->{$1}{path} = $inputs->[0]{type};
-    $inputs_hash->{$1}{class} = $inputs->[0]{type};
+    if ($inputs->[0]{type} eq "File") {
+      $inputs_hash->{$1}{path} = $inputs->[0]{type};
+      $inputs_hash->{$1}{class} = $inputs->[0]{type};
+    } else {
+      $inputs_hash->{$1} = $inputs->[0]{type};
+    }
   }
 
   print "  EXAMINING TOOL OUTPUTS...\n";
@@ -123,8 +127,7 @@ sub order_workflow {
   # override variable
   ########$inputs_hash->{bam_input}{path} = "icgc:$object_id";
   $inputs_hash->{bam_input}{path} = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12878/alignment/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam";
-  $inputs_hash->{mem_gb}{valueFrom} = $mem;
-  $inputs_hash->{mem_gb}{class} = "int";
+  $inputs_hash->{mem_gb} = $mem;
   # output
   $inputs_hash->{bamstats_report}{path} = "$s3_output_path/$project_id\:\:$donor_id\_bamstats_report.zip";
 
