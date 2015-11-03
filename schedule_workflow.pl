@@ -90,7 +90,7 @@ sub get_cwl {
   print "  EXAMINING TOOL INPUTS...\n";
 
   foreach my $inputs ($yml_data->{inputs}) {
-    #print Dumper $inputs;
+    print Dumper $inputs;
     my $id = $inputs->[0]{id};
     $id =~ /\#*(\w+)$/;
     print "  - $1\n";
