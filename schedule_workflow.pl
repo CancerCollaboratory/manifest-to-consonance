@@ -120,8 +120,6 @@ sub get_cwl {
 
   print Dumper $inputs_hash;
 
-die;
-
   open OUT, ">$outputs/Dockstore.cwl" or die;
   print OUT $cwl_content;
   close OUT;
