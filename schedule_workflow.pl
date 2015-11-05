@@ -126,7 +126,7 @@ sub get_cwl {
   print "  EXAMINING TOOL INPUTS...\n";
 
   foreach my $inputs ($yml_data->{inputs}) {
-    print Dumper $inputs;
+    #print Dumper $inputs;
     foreach my $currInput (@{$inputs}) {
       my $id = $currInput->{id};
       $id =~ /\#*(\w+)$/;
@@ -140,7 +140,7 @@ sub get_cwl {
     }
   }
 
-  print Dumper $inputs_hash;
+  #print Dumper $inputs_hash;
 
   print "  EXAMINING TOOL OUTPUTS...\n";
   foreach my $inputs ($yml_data->{outputs}) {
@@ -155,7 +155,7 @@ sub get_cwl {
   }
 
 
-  print Dumper $inputs_hash;
+  #print Dumper $inputs_hash;
 
   open OUT, ">$outputs/Dockstore.cwl" or die;
   print OUT $cwl_content;
@@ -224,7 +224,7 @@ sub order_workflow {
 
 sub report_status {
   # for each log entry report it's status
-  print Dumper($log);
+  #print Dumper($log);
   my $repeat = 1;
   while($repeat) {
     foreach my $job_key (keys %{$log}) {
