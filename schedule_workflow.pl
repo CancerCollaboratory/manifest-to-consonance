@@ -303,7 +303,10 @@ print "CMD: $0 [schedule|status] \n".
     "[--wait]\n".
     "[--status-file <file to store job status>]\n".
     "[--api-url <dockstore URL>]\n".
-    "[--help]\n";
+    "[--help]\n".
+    "EXAMPLES:\n".
+    "\$> perl schedule_workflow.pl status --status-file status.tsv \n".
+    "\$> perl schedule_workflow.pl schedule --container-id quay.io/briandoconnor/dockstore-tool-bamstats --manifest manifest_for_demo.tsv --mode consonance --status-file status.tsv\n";
 
     exit(0);
 }
