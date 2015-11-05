@@ -176,7 +176,7 @@ sub order_workflow {
       my ($result, $output) = executeCommand("/bin/bash -l -c '$cmd'");
       if ($result) { die "ERROR! problems with command\n"; }
       my $job_info = decode_json($output);
-      $log->{"$project_id.$donor_id"}{json_params_file} = $outputs/$project_id.$donor_id.json;
+      $log->{"$project_id.$donor_id"}{json_params_file} = "$outputs/$project_id.$donor_id.json";
       $log->{"$project_id.$donor_id"}{job_uuid} = $job_info->{job_uuid};
       $log->{"$project_id.$donor_id"}{job_state} = $job_info->{state};
     }
