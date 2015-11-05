@@ -211,9 +211,10 @@ sub order_workflow {
       if ($result) { die "ERROR! problems with command\n"; }
       if ($output =~ /^\{/) {
         my $job_info = decode_json($output);
-        $log->{"$project_id.$donor_id"}{json_params_file} = "$outputs/$project_id.$donor_id.json";
-        $log->{"$project_id.$donor_id"}{job_uuid} = $job_info->{job_uuid};
-        $log->{"$project_id.$donor_id"}{job_state} = $job_info->{state};
+        $log->{$job_info->{job_uuid}}{json_params_file} = "$outputs/$project_id.$donor_id.json";
+        $log->{$job_info->{job_uuid}}{job_uuid} = $job_info->{job_uuid};
+        $log->{$job_info->{job_uuid}}{project_and_donor} = "$project_id.$donor_id";
+        $log->{$job_info->{job_uuid}}{job_state} = $job_info->{state};
       }
     }
   }
@@ -227,7 +228,7 @@ sub report_status {
   my $repeat = 1;
   while($repeat) {
     foreach my $job_key (keys %{$log}) {
-      print "JOB ID: $job_key\n";
+      print "JOB UUID: $job_key\n";
       my $job_uuid = $log->{$job_key}{job_uuid};
       my ($result, $output) = executeCommand("/bin/bash -l -c 'consonance status --job_uuid $job_uuid'");
       if ($output =~ /^\{/) {
@@ -248,9 +249,10 @@ sub read_status {
   while(<IN>) {
     next if (/^JOB_ID/);
     my @t = split /\t/;
-    $log->{$t[0]}{job_uuid} = $t[1];
-    $log->{$t[0]}{state} = $t[2];
-    $log->{$t[0]}{json_params_file} = $t[3];
+    $log->{$t[1]}{job_uuid} = $t[1];
+    $log->{$t[1]}{state} = $t[2];
+    $log->{$t[1]}{json_params_file} = $t[3];
+    $log->{$t[1]}{project_and_donor} = $t[0];
   }
   close IN;
 }
@@ -260,12 +262,13 @@ sub write_status {
   print OUT "JOB_ID\tJOB_UUID\tSTATUS\tCONFIG\n";
   foreach my $job_key (keys %{$log}) {
     my $job_uuid = $log->{$job_key}{job_uuid};
+    my $job_proj = $log->{$job_key}{project_and_donor};
     my $job_config = $log->{$job_key}{json_params_file};
     my ($result, $output) = executeCommand("/bin/bash -l -c 'consonance status --job_uuid $job_uuid'");
     if ($output =~ /^\{/) {
       my $job_info_hash = decode_json($output);
       my $status = $job_info_hash->{state};
-      print OUT "$job_key\t$job_uuid\t$status\t$job_config\n";
+      print OUT "$job_proj\t$job_uuid\t$status\t$job_config\n";
     }
   }
   close OUT;
