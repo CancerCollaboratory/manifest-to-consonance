@@ -17,14 +17,17 @@ my $yml_data;
 my $outputs = "jsons";
 my $test = 0;
 my $s3_output_path = "s3://oicr.temp/testing-manifest-to-consonance";
-my $mem = 5;
+my $mem = 8;
 my $wait = 0;
 my $status_file = '';
-
 my $url = "https://www.dockstore.org:8443";
+my $help = 0;
+
+if (scalar(@ARGV) == 0) {
+  print_help();
+}
 
 # ARGS
-
 GetOptions (
   "container-id=s" => \$cid,
   "manifest=s" => \$manifest,
@@ -35,17 +38,23 @@ GetOptions (
   "mem=i" => \$mem,
   "wait" => \$wait,
   "status-file=s" => \$status_file,
+  "api-url=s" => \$url,
+  "help" => \$help,
 ) or die ("Error parsing command lines");
+
+if ($help) {
+  print_help();
+}
 
 # MAIN LOOP
 
-print "GETTING DOCKER CWL FOR $cid\n";
+print "GETTING DOCKER CWL FOR $cid...\n";
 
 my $cwl = get_cwl($cid);
 
 system "mkdir -p $outputs";
 
-print "READING MANIFEST FILE...\n";
+print "READING MANIFEST FILE TO CONSTRUCT JOB ORDERS...\n";
 
 open IN, "<$manifest" or die;
 while(<IN>) {
@@ -58,13 +67,25 @@ while(<IN>) {
 close IN;
 print "\n";
 
-# reporting
-report_status($log);
-
-# writing status file
-if ($status_file ne '') {
-  write_status($log);
+# read in old file so we can check these statuses
+if ($status_file ne '' && -e $status_file) {
+  read_status();
 }
+
+# writing status file for first time (in case a user cancel's the report_status below)
+if ($status_file ne '') {
+  write_status();
+}
+
+# reporting
+report_status();
+
+# writing status file for a final time
+if ($status_file ne '') {
+  write_status();
+}
+
+
 
 # SUBROUTINES
 
@@ -181,10 +202,12 @@ sub order_workflow {
     if (!$test) {
       my ($result, $output) = executeCommand("/bin/bash -l -c '$cmd'");
       if ($result) { die "ERROR! problems with command\n"; }
-      my $job_info = decode_json($output);
-      $log->{"$project_id.$donor_id"}{json_params_file} = "$outputs/$project_id.$donor_id.json";
-      $log->{"$project_id.$donor_id"}{job_uuid} = $job_info->{job_uuid};
-      $log->{"$project_id.$donor_id"}{job_state} = $job_info->{state};
+      if ($output =~ /^\{/) {
+        my $job_info = decode_json($output);
+        $log->{"$project_id.$donor_id"}{json_params_file} = "$outputs/$project_id.$donor_id.json";
+        $log->{"$project_id.$donor_id"}{job_uuid} = $job_info->{job_uuid};
+        $log->{"$project_id.$donor_id"}{job_state} = $job_info->{state};
+      }
     }
   }
 
@@ -192,7 +215,6 @@ sub order_workflow {
 }
 
 sub report_status {
-  my ($log) = @_;
   # for each log entry report it's status
   print Dumper($log);
   my $repeat = 1;
@@ -201,27 +223,44 @@ sub report_status {
       print "JOB ID: $job_key\n";
       my $job_uuid = $log->{$job_key}{job_uuid};
       my ($result, $output) = executeCommand("/bin/bash -l -c 'consonance status --job_uuid $job_uuid'");
-      my $job_info_hash = decode_json($output);
-      print "  - STATUS: ".$job_info_hash->{state}."\n";
-      if (!$wait) { $repeat = 0; }
-      if ($wait) {
-        $repeat = 0;
-        if ($job_info_hash->{state} ne "SUCCESS" || $job_info_hash->{state} ne "FAILED") { $repeat = 1; }
+      if ($output =~ /^\{/) {
+        my $job_info_hash = decode_json($output);
+        print "  - STATUS: ".$job_info_hash->{state}."\n";
+        if (!$wait) { $repeat = 0; }
+        if ($wait) {
+          $repeat = 0;
+          if ($job_info_hash->{state} ne "SUCCESS" || $job_info_hash->{state} ne "FAILED") { $repeat = 1; }
+        }
       }
     }
   }
 }
 
+sub read_status {
+  my ($log) = @_;
+  open IN, "<$status_file" or die;
+  while(<IN>) {
+    next if (/^JOB_ID/);
+    my @t = split /\t/;
+    $log->{$t[0]}{job_uuid} = $t[1];
+    $log->{$t[0]}{state} = $t[2];
+    $log->{$t[0]}{json_params_file} = $t[3];
+  }
+  close IN;
+}
+
 sub write_status {
   open OUT, ">$status_file" or die;
-  print "JOB_ID\tJOB_UUID\tSTATUS\tCONFIG\n";
+  print OUT "JOB_ID\tJOB_UUID\tSTATUS\tCONFIG\n";
   foreach my $job_key (keys %{$log}) {
     my $job_uuid = $log->{$job_key}{job_uuid};
     my $job_config = $log->{$job_key}{json_params_file};
     my ($result, $output) = executeCommand("/bin/bash -l -c 'consonance status --job_uuid $job_uuid'");
-    my $job_info_hash = decode_json($output);
-    my $status = $job_info_hash->{state};
-    print OUT "$job_key\t$job_uuid\t$status\t$job_config\n";
+    if ($output =~ /^\{/) {
+      my $job_info_hash = decode_json($output);
+      my $status = $job_info_hash->{state};
+      print OUT "$job_key\t$job_uuid\t$status\t$job_config\n";
+    }
   }
   close OUT;
 }
@@ -230,6 +269,21 @@ sub executeCommand
 {
   my $command = join ' ', @_;
   ($? >> 8, $_ = qx{$command 2>&1});
+}
+
+sub print_help {
+print "CMD: $0 \n".
+    "--container-id <name of quay.io hosted container>\n".
+    "--manifest <TSV from the DCC portal>\n".
+    "--mode <local|consonance>\n".
+    "--output-dir <path for JSON and temp files>\n".
+    "--s3-output-path <path in S3 to write files to>\n".
+    "--test\n".
+    "--mem <GB of RAM>\n".
+    "--wait\n".
+    "--status-file <file to store job status>\n".
+    "--api-url <dockstore URL>\n".
+    "--help\n";
 }
 
 
