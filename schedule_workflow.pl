@@ -244,7 +244,6 @@ sub report_status {
 }
 
 sub read_status {
-  my ($log) = @_;
   open IN, "<$status_file" or die;
   while(<IN>) {
     next if (/^JOB_ID/);
