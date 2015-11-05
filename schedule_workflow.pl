@@ -249,6 +249,7 @@ sub read_status {
   while(<IN>) {
     next if (/^JOB_ID/);
     my @t = split /\t/;
+    next if (scalar(@t) < 4);
     $log->{$t[1]}{job_uuid} = $t[1];
     $log->{$t[1]}{state} = $t[2];
     $log->{$t[1]}{json_params_file} = $t[3];
@@ -269,6 +270,7 @@ sub write_status {
       my $job_info_hash = decode_json($output);
       my $status = $job_info_hash->{state};
       my $line = "$job_proj\t$job_uuid\t$status\t$job_config\n";
+      chomp $line;
       if ($line =~ /\w/) {
         print OUT $line;
       }
