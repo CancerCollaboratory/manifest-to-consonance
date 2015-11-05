@@ -19,6 +19,7 @@ my $test = 0;
 my $s3_output_path = "s3://oicr.temp/testing-manifest-to-consonance";
 my $mem = 5;
 my $wait = 0;
+my $status_file = '';
 
 my $url = "https://www.dockstore.org:8443";
 
@@ -33,6 +34,7 @@ GetOptions (
   "test" => \$test,
   "mem=i" => \$mem,
   "wait" => \$wait,
+  "status-file=s" => \$status_file,
 ) or die ("Error parsing command lines");
 
 # MAIN LOOP
@@ -59,6 +61,10 @@ print "\n";
 # reporting
 report_status($log);
 
+# writing status file
+if ($status_file ne '') {
+  write_status($log);
+}
 
 # SUBROUTINES
 
@@ -204,6 +210,20 @@ sub report_status {
       }
     }
   }
+}
+
+sub write_status {
+  open OUT, ">$status_file" or die;
+  print "JOB_ID\tJOB_UUID\tSTATUS\tCONFIG\n";
+  foreach my $job_key (keys %{$log}) {
+    my $job_uuid = $log->{$job_key}{job_uuid};
+    my $job_config = $log->{$job_key}{json_params_file};
+    my ($result, $output) = executeCommand("/bin/bash -l -c 'consonance status --job_uuid $job_uuid'");
+    my $job_info_hash = decode_json($output);
+    my $status = $job_info_hash->{state};
+    print OUT "$job_key\t$job_uuid\t$status\t$job_config\n";
+  }
+  close OUT;
 }
 
 sub executeCommand
