@@ -51,7 +51,7 @@ if ($help) {
 
 # MAIN LOOP
 
-print "** COLLABORATORY CLI **\n";
+print "\n** COLLABORATORY CLI **\n\n";
 
 if ($command_class eq "schedule") {
 
