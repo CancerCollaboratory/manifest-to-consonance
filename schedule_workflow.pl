@@ -269,10 +269,10 @@ sub write_status {
     if ($output =~ /^\{/) {
       my $job_info_hash = decode_json($output);
       my $status = $job_info_hash->{state};
-      my $line = "$job_proj\t$job_uuid\t$status\t$job_config\n";
+      my $line = "$job_proj\t$job_uuid\t$status\t$job_config";
       chomp $line;
       if ($line =~ /\w/) {
-        print OUT $line;
+        print OUT "$line\n";
       }
     }
   }
