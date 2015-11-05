@@ -51,6 +51,8 @@ if ($help) {
 
 # MAIN LOOP
 
+print "** COLLABORATORY CLI **\n";
+
 if ($command_class eq "schedule") {
 
   print "GETTING DOCKER CWL FOR $cid...\n";
