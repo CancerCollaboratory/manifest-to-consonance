@@ -91,7 +91,7 @@ if ($status_file ne '') {
 # reporting
 report_status();
 
-print "WRITING OUT JOB STATUS TO FILE $status_file...\n";
+print "WRITING OUT JOB STATUS TO FILE $status_file...\n\n";
 
 # writing status file for a final time
 if ($status_file ne '') {
