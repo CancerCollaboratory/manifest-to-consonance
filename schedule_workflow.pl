@@ -284,6 +284,8 @@ print "CMD: $0 \n".
     "--status-file <file to store job status>\n".
     "--api-url <dockstore URL>\n".
     "--help\n";
+
+    exit(0);
 }
 
 
