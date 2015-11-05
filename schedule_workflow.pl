@@ -18,6 +18,7 @@ my $outputs = "jsons";
 my $test = 0;
 my $s3_output_path = "s3://oicr.temp/testing-manifest-to-consonance";
 my $mem = 5;
+my $wait = 0;
 
 my $url = "https://www.dockstore.org:8443";
 
@@ -31,6 +32,7 @@ GetOptions (
   "s3-output-path=s" => \$s3_output_path,
   "test" => \$test,
   "mem=i" => \$mem,
+  "wait" => \$wait,
 ) or die ("Error parsing command lines");
 
 # MAIN LOOP
@@ -171,8 +173,12 @@ sub order_workflow {
     #     my $cmd = "consonance run  --flavour c1.medium --image-descriptor $outputs/Dockstore.cwl --run-descriptor $outputs/$project_id.$donor_id.json --extra-file cwl-launcher.config=cwl-launcher.config=true  --extra-file /icgc/dcc-storage/conf/application-amazon.properties=application-amazon.properties=false";
     print "$cmd\n";
     if (!$test) {
-      my $result = system("/bin/bash -l -c '$cmd'");
-      if ($result) { print "ERROR! problems with command\n"; }
+      my ($result, $output) = executeCommand("/bin/bash -l -c '$cmd'");
+      if ($result) { die "ERROR! problems with command\n"; }
+      my $job_info = decode_json($output);
+      $log->{"$project_id.$donor_id"}{json_params_file} = $outputs/$project_id.$donor_id.json;
+      $log->{"$project_id.$donor_id"}{job_uuid} = $job_info->{job_uuid};
+      $log->{"$project_id.$donor_id"}{job_state} = $job_info->{state};
     }
   }
 
@@ -182,6 +188,28 @@ sub order_workflow {
 sub report_status {
   my ($log) = @_;
   # for each log entry report it's status
+  print Dumper($log);
+  my $repeat = 1;
+  while($repeat) {
+    foreach my $job_key (keys %{$log}) {
+      print "JOB ID: $job_key\n";
+      my $job_uuid = $log->{$job_key}{job_uuid};
+      my ($result, $output) = executeCommand("/bin/bash -l -c 'consonance status --job_uuid $job_uuid'");
+      my $job_info_hash = decode_json($output);
+      print "  - STATUS: ".$job_info_hash->{state}."\n";
+      if (!$wait) { $repeat = 0; }
+      if ($wait) {
+        $repeat = 0;
+        if ($job_info_hash->{state} ne "SUCCESS" || $job_info_hash->{state} ne "FAILED") { $repeat = 1; }
+      }
+    }
+  }
+}
+
+sub executeCommand
+{
+  my $command = join ' ', @_;
+  ($? >> 8, $_ = qx{$command 2>&1});
 }
 
 
