@@ -19,13 +19,16 @@ my $test = 0;
 my $s3_output_path = "s3://oicr.temp/testing-manifest-to-consonance";
 my $mem = 8;
 my $wait = 0;
-my $status_file = '';
+my $status_file = 'status.tsv';
 my $url = "https://www.dockstore.org:8443";
 my $help = 0;
 
 if (scalar(@ARGV) == 0) {
   print_help();
 }
+
+my $command_class = shift @ARGV;
+if ($command_class ne "schedule" && $command_class ne "status") { print_help(); }
 
 # ARGS
 GetOptions (
@@ -48,24 +51,28 @@ if ($help) {
 
 # MAIN LOOP
 
-print "GETTING DOCKER CWL FOR $cid...\n";
+if ($command_class eq "schedule") {
 
-my $cwl = get_cwl($cid);
+  print "GETTING DOCKER CWL FOR $cid...\n";
 
-system "mkdir -p $outputs";
+  my $cwl = get_cwl($cid);
 
-print "READING MANIFEST FILE TO CONSTRUCT JOB ORDERS...\n";
+  system "mkdir -p $outputs";
 
-open IN, "<$manifest" or die;
-while(<IN>) {
-  chmop;
-  next if (/^repo_code/);
-  my @t = split /\s+/;
-  #print "$t[0]\n";
-  order_workflow($t[0], $t[2], $t[3], $t[8], $t[9]);
+  print "READING MANIFEST FILE TO CONSTRUCT JOB ORDERS...\n";
+
+  open IN, "<$manifest" or die;
+  while(<IN>) {
+    chmop;
+    next if (/^repo_code/);
+    my @t = split /\s+/;
+    #print "$t[0]\n";
+    order_workflow($t[0], $t[2], $t[3], $t[8], $t[9]);
+  }
+  close IN;
+  print "\n";
+
 }
-close IN;
-print "\n";
 
 # read in old file so we can check these statuses
 if ($status_file ne '' && -e $status_file) {
@@ -272,18 +279,18 @@ sub executeCommand
 }
 
 sub print_help {
-print "CMD: $0 \n".
+print "CMD: $0 [schedule|status] \n".
     "--container-id <name of quay.io hosted container>\n".
     "--manifest <TSV from the DCC portal>\n".
     "--mode <local|consonance>\n".
-    "--output-dir <path for JSON and temp files>\n".
-    "--s3-output-path <path in S3 to write files to>\n".
-    "--test\n".
-    "--mem <GB of RAM>\n".
-    "--wait\n".
-    "--status-file <file to store job status>\n".
-    "--api-url <dockstore URL>\n".
-    "--help\n";
+    "[--output-dir <path for JSON and temp files>]\n".
+    "[--s3-output-path <path in S3 to write files to>]\n".
+    "[--test]\n".
+    "[--mem <GB of RAM>]\n".
+    "[--wait]\n".
+    "[--status-file <file to store job status>]\n".
+    "[--api-url <dockstore URL>]\n".
+    "[--help]\n";
 
     exit(0);
 }
