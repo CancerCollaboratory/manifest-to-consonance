@@ -74,6 +74,8 @@ if ($command_class eq "schedule") {
 
 }
 
+print "CHECKING STATUS OF JOBS...\n";
+
 # read in old file so we can check these statuses
 if ($status_file ne '' && -e $status_file) {
   read_status();
@@ -86,6 +88,8 @@ if ($status_file ne '') {
 
 # reporting
 report_status();
+
+print "WRITING OUT JOB STATUS TO FILE $status_file...\n";
 
 # writing status file for a final time
 if ($status_file ne '') {
