@@ -80,13 +80,15 @@ export AWS_SECRET_KEY=<your secret key>
 
 ### Local
 
+The tool is called `collab` since it's for the Collaboratory project.
+
 This will run the BAMStats tool on a collection of BAM files available
 
-    perl schedule_workflow.pl --container-id quay.io/briandoconnor/dockstore-tool-bamstats --manifest manifest.tsv --mode local
+    perl collab --container-id quay.io/briandoconnor/dockstore-tool-bamstats --manifest manifest.tsv --mode local
 
 ### Consonance
 
-    perl schedule_workflow.pl --container-id quay.io/briandoconnor/dockstore-tool-bamstats --manifest manifest.tsv --mode consonance
+    perl collab --container-id quay.io/briandoconnor/dockstore-tool-bamstats --manifest manifest.tsv --mode consonance
 
 ## TODO
 
